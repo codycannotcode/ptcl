@@ -12,10 +12,12 @@ class Particle():
 
   def step(self):
     if self.stepped: return
+    
     if self.grid.in_range(self.x, self.y+1):
-      other = self.grid.get(self.x, self.y)
+      other = self.grid.get(self.x, self.y+1)
       if not other:
-        self.grid.set(self.x, self.y+1, self)
-        self.grid.set(self.x, self.y, None)
-    print('step')
+        cur_y = self.y
+        self.grid.set(self.x, cur_y+1, self)
+        self.grid.set(self.x, cur_y, None)
+    
     self.stepped = True

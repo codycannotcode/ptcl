@@ -1,24 +1,28 @@
 import pygame
 import particle
-import random
 from grid import Grid
 
 class Game():
   screen = None
 
-  def __init__(self, width, height, rows=50, cols=50):
+  def __init__(self, width, height):
     pygame.init()
+
+    #visual constants
     self.WIDTH = width
     self.HEIGHT = height
+    self.SIZE = 5
+    self.BG_COLOR = (0, 0, 0)
+
     self.screen = pygame.display.set_mode((width, height))
     self.clock = pygame.time.Clock()
     self.running = True
-    
-    self.grid = Grid(rows, cols)
-    self.SIZE = 5
+
+    self.grid = Grid(int(height/self.SIZE), int(width/self.SIZE))
     particle.Particle.grid = self.grid
 
     particle.Particle(5, 5)
+    particle.Particle(5, 3)
     
   def run(self):
     while self.running:
@@ -38,12 +42,13 @@ class Game():
           particle.stepped = False
     
     for x in range(self.grid.cols):
-      for y in range(self.grid.cols):
+      for y in range(self.grid.rows):
         particle = self.grid.get(x, y)
-        if particle and particle.stepped == True:
+        if particle and not particle.stepped:
           particle.step()
 
   def render(self):
+    self.screen.fill(self.BG_COLOR)
     for r in range(self.grid.rows):
       for c in range(self.grid.cols):
         particle = self.grid.get(c, r)
