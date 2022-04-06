@@ -1,5 +1,3 @@
-from particle import Particle
-
 class Grid():
     def __init__(self, rows, cols):
         self.rows = rows
@@ -9,10 +7,11 @@ class Grid():
     def in_range(self, x, y):
         return y > 0 and y < self.rows - 1 and x > 0 and x < self.cols
 
-    def set(self, x, y, particle: Particle):
+    def set(self, x, y, particle):
         self.__grid[y][x] = particle
-        particle.x = x
-        particle.y = y
+        if particle:
+            particle.x = x
+            particle.y = y
     
     def get(self, x, y):
         return self.__grid[y][x]

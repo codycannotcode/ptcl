@@ -1,26 +1,21 @@
-from dataclasses import dataclass, field
 from grid import Grid
 
-@dataclass
 class Particle():
-  direction: int
   grid: Grid
-  x: int = field(default=0)
-  y: int = field(default=0)
-  strength: int = 0
   color: tuple = (255,255,255)
 
-  def update():
-    pass
+  def __init__(self, x, y):
+    self.x = x
+    self.y = y
+    self.stepped = False
+    self.grid.set(x, y, self)
 
-  def moveTo(self, x, y):
-    #if self.grid
-    pass
-
-@dataclass
-class BasicSand(Particle):
-  strength: int = 1
-  color: tuple = (255, 0, 255)
-
-  def update(grid):
-    pass
+  def step(self):
+    if self.stepped: return
+    if self.grid.in_range(self.x, self.y+1):
+      other = self.grid.get(self.x, self.y)
+      if not other:
+        self.grid.set(self.x, self.y+1, self)
+        self.grid.set(self.x, self.y, None)
+    print('step')
+    self.stepped = True

@@ -14,39 +14,44 @@ class Game():
     self.clock = pygame.time.Clock()
     self.running = True
     
-    self.ROWS = rows
-    self.COLS = cols
     self.grid = Grid(rows, cols)
     self.SIZE = 5
+    particle.Particle.grid = self.grid
 
-    self.grid[0][0] = particle.Particle(0)
-    self.grid[25][25] = particle.Particle(0)
+    particle.Particle(5, 5)
     
   def run(self):
     while self.running:
       
-      self.action()
+      self.step()
       self.handle_events()
       self.render()
       pygame.display.flip()
       self.clock.tick(60)
 
 
-  def action(self):
-    particle = random.choice(random.choice(self.grid))
-    if particle:
-      print(particle)
+  def step(self):
+    for x in range(self.grid.cols):
+      for y in range(self.grid.rows):
+        particle = self.grid.get(x, y)
+        if particle:
+          particle.stepped = False
+    
+    for x in range(self.grid.cols):
+      for y in range(self.grid.cols):
+        particle = self.grid.get(x, y)
+        if particle and particle.stepped == True:
+          particle.step()
 
   def render(self):
-    
-    for r in range(len(self.grid)):
-      for c in range(len(self.grid[r])):
-        particle = self.grid[r][c]
+    for r in range(self.grid.rows):
+      for c in range(self.grid.cols):
+        particle = self.grid.get(c, r)
         if particle:
           pygame.draw.rect(
             self.screen,
             particle.color,
-            pygame.Rect(r*self.SIZE, c*self.SIZE,self.SIZE,self.SIZE),
+            pygame.Rect(c*self.SIZE, r*self.SIZE,self.SIZE,self.SIZE),
           )
 
   def handle_events(self):
