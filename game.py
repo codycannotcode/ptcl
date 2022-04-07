@@ -17,35 +17,31 @@ class Game():
     self.screen = pygame.display.set_mode((width, height))
     self.clock = pygame.time.Clock()
     self.running = True
+    self.mouse_down = False
 
     self.grid = Grid(int(height/self.SIZE), int(width/self.SIZE))
     particle.Particle.grid = self.grid
-
-    particle.Particle(5, 5)
-    particle.Particle(5, 3)
     
   def run(self):
     while self.running:
-      
-      self.step()
+
       self.handle_events()
+      self.step()
       self.render()
       pygame.display.flip()
       self.clock.tick(60)
-
-
+  
   def step(self):
+    step_queue = []
+    
     for x in range(self.grid.cols):
       for y in range(self.grid.rows):
         particle = self.grid.get(x, y)
         if particle:
-          particle.stepped = False
-    
-    for x in range(self.grid.cols):
-      for y in range(self.grid.rows):
-        particle = self.grid.get(x, y)
-        if particle and not particle.stepped:
-          particle.step()
+          step_queue.append(particle)
+
+    for i, particle in enumerate(step_queue):
+      particle.step()
 
   def render(self):
     self.screen.fill(self.BG_COLOR)
@@ -63,3 +59,16 @@ class Game():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
           self.running = False
+        elif event.type == pygame.MOUSEMOTION:
+          if self.mouse_down:
+            self.onDrag()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+          self.mouse_down = True
+        elif event.type == pygame.MOUSEBUTTONUP:
+          self.mouse_down = False
+  
+  def onDrag(self):
+    mousePos = pygame.mouse.get_pos()
+    x, y = int(mousePos[0] / self.SIZE), int(mousePos[1] / self.SIZE)
+    if not self.grid.get(x, y):
+      particle.Sand(x, y)

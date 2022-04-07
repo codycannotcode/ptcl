@@ -5,7 +5,7 @@ class Grid():
         self.__grid = [[None]*cols for _ in range(rows)]
 
     def in_range(self, x, y):
-        return y > 0 and y < self.rows - 1 and x > 0 and x < self.cols
+        return y >= 0 and y < self.rows and x >= 0 and x < self.cols
 
     def set(self, x, y, particle):
         self.__grid[y][x] = particle
