@@ -34,8 +34,8 @@ class Game():
   def step(self):
     step_queue = []
     
-    for x in range(self.grid.cols):
-      for y in range(self.grid.rows):
+    for x in range(self.grid.cols-1, -1, -1):
+      for y in range(self.grid.rows-1, -1, -1):
         particle = self.grid.get(x, y)
         if particle:
           step_queue.append(particle)
@@ -59,16 +59,16 @@ class Game():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
           self.running = False
-        elif event.type == pygame.MOUSEMOTION:
-          if self.mouse_down:
-            self.onDrag()
         elif event.type == pygame.MOUSEBUTTONDOWN:
           self.mouse_down = True
         elif event.type == pygame.MOUSEBUTTONUP:
           self.mouse_down = False
+
+    if self.mouse_down:
+      self.spawn_at_mouse()
   
-  def onDrag(self):
+  def spawn_at_mouse(self):
     mousePos = pygame.mouse.get_pos()
     x, y = int(mousePos[0] / self.SIZE), int(mousePos[1] / self.SIZE)
     if not self.grid.get(x, y):
-      particle.Sand(x, y)
+      particle.Water(x, y)

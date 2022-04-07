@@ -13,12 +13,34 @@ class Particle():
     pass
 
 class Sand(Particle):
-  color: tuple = (245, 206, 66)
+  color: tuple = (255, 242, 122)
 
   def step(self):
     if self.grid.in_range(self.x, self.y+1):
-      other = self.grid.get(self.x, self.y+1)
-      if not other:
-        cur_y = self.y
-        self.grid.set(self.x, cur_y+1, self)
-        self.grid.set(self.x, cur_y, None)
+      if not self.grid.get(self.x, self.y+1):
+        self.grid.swap(self.x, self.y, self.x, self.y+1)
+        return
+    if self.grid.in_range(self.x+1, self.y+1):
+      if not self.grid.get(self.x+1, self.y+1):
+        self.grid.swap(self.x, self.y, self.x+1, self.y+1)
+        return
+    if self.grid.in_range(self.x-1, self.y+1):
+      if not self.grid.get(self.x-1, self.y+1):
+        self.grid.swap(self.x, self.y, self.x-1, self.y+1)
+
+class Water(Particle):
+  color: tuple = (84, 133, 255)
+
+  def step(self):
+    if self.grid.in_range(self.x, self.y+1):
+      below = self.grid.get(self.x, self.y+1)
+      if not below and type(below) != Sand:
+        self.grid.swap(self.x, self.y, self.x, self.y+1)
+        return
+    if self.grid.in_range(self.x+1, self.y):
+      if not self.grid.get(self.x+1, self.y):
+        self.grid.swap(self.x, self.y, self.x+1, self.y)
+        return
+    if self.grid.in_range(self.x-1, self.y):
+      if not self.grid.get(self.x-1, self.y):
+        self.grid.swap(self.x, self.y, self.x-1, self.y)
