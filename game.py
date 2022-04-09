@@ -14,19 +14,22 @@ class Game():
     self.HEIGHT = height
     self.BAR_WIDTH = 70
     self.PIXEL_SIZE = 5
-    self.BUTTON_HEIGHT = 40
+    self.BUTTON_HEIGHT = 30
     self.BUTTON_WIDTH = 50
     self.BG_COLOR = (0, 0, 0)
+    self.BAR_COLOR = (31, 31, 31)
 
     self.screen = pygame.display.set_mode((width, height))
     self.clock = pygame.time.Clock()
-    self.font = pygame.font.Font(None, 30)
+    self.font = pygame.font.Font(None, 25)
     Button.font = self.font
 
     self.running = True
     self.mouse_down = False
 
-    self.buttons = [Button(particle.Sand)]
+    self.bar = pygame.Surface((self.BAR_WIDTH, self.HEIGHT))
+    self.bar.fill(self.BAR_COLOR)
+    self.buttons = [Button(particle.Sand, self.BUTTON_WIDTH, self.BUTTON_HEIGHT)]
 
     self.grid = Grid(int(height/self.PIXEL_SIZE), int((width - self.BAR_WIDTH)/self.PIXEL_SIZE))
     particle.Particle.grid = self.grid
@@ -54,13 +57,13 @@ class Game():
 
   def render(self):
     self.screen.fill(self.BG_COLOR)
+    self.screen.blit(self.bar, (self.WIDTH - self.BAR_WIDTH, 0))
 
-    for button in self.buttons:
+    for i, button in enumerate(self.buttons):
       self.screen.blit(button.surface, pygame.Rect(
-        self.BUTTON_WIDTH, self.BUTTON_HEIGHT,
-        self.WIDTH / 2, self.HEIGHT / 2
+        self.WIDTH - self.BAR_WIDTH + 10, self.HEIGHT / 2 - i * (self.BUTTON_HEIGHT+10),
+        self.BUTTON_WIDTH, self.BUTTON_HEIGHT
         ))
-      print(button.surface)
 
     for r in range(self.grid.rows):
       for c in range(self.grid.cols):
