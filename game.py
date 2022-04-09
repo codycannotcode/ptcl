@@ -1,6 +1,7 @@
 import pygame
-import particle
+import particles.particle as particle
 from grid import Grid
+from button import Button
 
 class Game():
   screen = None
@@ -11,15 +12,23 @@ class Game():
     #visual constants
     self.WIDTH = width
     self.HEIGHT = height
-    self.SIZE = 5
+    self.BAR_WIDTH = 70
+    self.PIXEL_SIZE = 5
+    self.BUTTON_HEIGHT = 40
+    self.BUTTON_WIDTH = 50
     self.BG_COLOR = (0, 0, 0)
 
     self.screen = pygame.display.set_mode((width, height))
     self.clock = pygame.time.Clock()
+    self.font = pygame.font.Font(None, 30)
+    Button.font = self.font
+
     self.running = True
     self.mouse_down = False
 
-    self.grid = Grid(int(height/self.SIZE), int(width/self.SIZE))
+    self.buttons = [Button(particle.Sand)]
+
+    self.grid = Grid(int(height/self.PIXEL_SIZE), int((width - self.BAR_WIDTH)/self.PIXEL_SIZE))
     particle.Particle.grid = self.grid
     
   def run(self):
@@ -40,11 +49,19 @@ class Game():
         if particle:
           step_queue.append(particle)
 
-    for i, particle in enumerate(step_queue):
+    for particle in step_queue:
       particle.step()
 
   def render(self):
     self.screen.fill(self.BG_COLOR)
+
+    for button in self.buttons:
+      self.screen.blit(button.surface, pygame.Rect(
+        self.BUTTON_WIDTH, self.BUTTON_HEIGHT,
+        self.WIDTH / 2, self.HEIGHT / 2
+        ))
+      print(button.surface)
+
     for r in range(self.grid.rows):
       for c in range(self.grid.cols):
         particle = self.grid.get(c, r)
@@ -52,7 +69,7 @@ class Game():
           pygame.draw.rect(
             self.screen,
             particle.color,
-            pygame.Rect(c*self.SIZE, r*self.SIZE,self.SIZE,self.SIZE),
+            pygame.Rect(c*self.PIXEL_SIZE, r*self.PIXEL_SIZE,self.PIXEL_SIZE,self.PIXEL_SIZE),
           )
 
   def handle_events(self):
@@ -69,6 +86,6 @@ class Game():
   
   def spawn_at_mouse(self):
     mousePos = pygame.mouse.get_pos()
-    x, y = int(mousePos[0] / self.SIZE), int(mousePos[1] / self.SIZE)
-    if not self.grid.get(x, y):
-      particle.Water(x, y)
+    x, y = int(mousePos[0] / self.PIXEL_SIZE), int(mousePos[1] / self.PIXEL_SIZE)
+    if self.grid.in_range(x, y):
+      particle.Sand(x, y)
