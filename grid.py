@@ -4,6 +4,9 @@ class Grid():
     self.cols = cols
     self.__grid = [[None]*cols for _ in range(rows)]
 
+  def grid(self):
+    return self.__grid
+
   def in_range(self, x, y):
     return y >= 0 and y < self.rows and x >= 0 and x < self.cols
 

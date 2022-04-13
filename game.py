@@ -1,7 +1,9 @@
+from sys import flags
 import pygame
 import particles.particle as particle
 from grid import Grid
 from button import Button
+import numpy as np
 
 class Game():
   screen = None
@@ -26,18 +28,38 @@ class Game():
 
     self.running = True
     self.mouse_down = False
-
+    self.selected_particle = None
+    self.hovered_button = None
+    self.selected_button = None
+    
     self.bar = pygame.Surface((self.BAR_WIDTH, self.HEIGHT))
     self.bar.fill(self.BAR_COLOR)
-    self.buttons = [Button(particle.Sand, self.BUTTON_WIDTH, self.BUTTON_HEIGHT)]
+    self.buttons: list[Button] = self.create_buttons([
+      particle.Sand
+    ])
 
     self.grid = Grid(int(height/self.PIXEL_SIZE), int((width - self.BAR_WIDTH)/self.PIXEL_SIZE))
     particle.Particle.grid = self.grid
     
+  def create_buttons(self, particle_types):
+    buttons = []
+    for i, particle in enumerate(particle_types):
+      buttons.append(
+        Button(
+          particle,
+          self.WIDTH - self.BAR_WIDTH + 10,
+          self.HEIGHT / 2 - i * (self.BUTTON_HEIGHT+10),
+          self.BUTTON_WIDTH,
+          self.BUTTON_HEIGHT
+        )
+      )
+    return buttons
+
   def run(self):
     while self.running:
 
       self.handle_events()
+      self.handle_mouse()
       self.step()
       self.render()
       pygame.display.flip()
@@ -45,35 +67,37 @@ class Game():
   
   def step(self):
     step_queue = []
-    
-    for x in range(self.grid.cols-1, -1, -1):
-      for y in range(self.grid.rows-1, -1, -1):
-        particle = self.grid.get(x, y)
-        if particle:
-          step_queue.append(particle)
 
-    for particle in step_queue:
+    # for x in range(self.grid.cols-1, -1, -1):
+    #   for y in range(self.grid.rows-1, -1, -1):
+    #     particle = self.grid.get(x, y)
+    #     if particle:
+    #       step_queue.append(particle)
+    particles = np.reshape(self.grid.grid(), self.grid.rows * self.grid.cols)
+    
+    for p in particles.flat[::-1]:
+      if p:
+        step_queue.append(p)
+
+    for particle in np.array(step_queue).flat:
       particle.step()
 
   def render(self):
     self.screen.fill(self.BG_COLOR)
     self.screen.blit(self.bar, (self.WIDTH - self.BAR_WIDTH, 0))
 
-    for i, button in enumerate(self.buttons):
-      self.screen.blit(button.surface, pygame.Rect(
-        self.WIDTH - self.BAR_WIDTH + 10, self.HEIGHT / 2 - i * (self.BUTTON_HEIGHT+10),
-        self.BUTTON_WIDTH, self.BUTTON_HEIGHT
-        ))
+    for button in self.buttons:
+      self.screen.blit(button.surface, button.rect)
 
-    for r in range(self.grid.rows):
-      for c in range(self.grid.cols):
-        particle = self.grid.get(c, r)
-        if particle:
-          pygame.draw.rect(
-            self.screen,
-            particle.color,
-            pygame.Rect(c*self.PIXEL_SIZE, r*self.PIXEL_SIZE,self.PIXEL_SIZE,self.PIXEL_SIZE),
-          )
+    particles = np.reshape(self.grid.grid(), self.grid.rows * self.grid.cols)
+    
+    for p in particles.flat:
+      if p:
+        pygame.draw.rect(
+          self.screen,
+          p.color,
+          pygame.Rect(p.x*self.PIXEL_SIZE, p.y*self.PIXEL_SIZE,self.PIXEL_SIZE,self.PIXEL_SIZE),
+        )
 
   def handle_events(self):
     for event in pygame.event.get():
@@ -84,6 +108,14 @@ class Game():
         elif event.type == pygame.MOUSEBUTTONUP:
           self.mouse_down = False
 
+    
+  
+  def handle_mouse(self):
+    mousePos = pygame.mouse.get_pos()
+    for button in self.buttons:
+      # if button != self. button.rect.collidepoint(mousePos):
+      #   print('yeah')
+      pass
     if self.mouse_down:
       self.spawn_at_mouse()
   
