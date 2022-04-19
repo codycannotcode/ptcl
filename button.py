@@ -13,26 +13,26 @@ class Button():
     self.rect = Rect(x, y, width, height)
     self.surface = Surface((width, height))
     self.text = self.font.render(self.text, True, (0, 0, 0))
-    self.render_grey()
+    self.unhovered()
 
-  def render_color(self):
+  def hovered(self):
     self.surface.fill(self.color)
     self.surface.blit(self.text, (
       self.rect.width / 2 - self.text.get_width() / 2,
       self.rect.height / 2 - self.text.get_height() / 2
       ))
   
-  def render_grey(self):
+  def unhovered(self):
     self.surface.fill(self.grey_color)
     self.surface.blit(self.text, (
       self.rect.width / 2 - self.text.get_width() / 2,
       self.rect.height / 2 - self.text.get_height() / 2
       ))
   
-  def box(self):
+  def selected(self):
     draw.rect(
       self.surface,
-      (0, 0, 0),
-      self.rect,
+      (255, 0, 0),
+      (0, 0, self.rect.width, self.rect.height),
       width=3
       )

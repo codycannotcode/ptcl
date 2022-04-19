@@ -104,18 +104,36 @@ class Game():
         if event.type == pygame.QUIT:
           self.running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
-          self.mouse_down = True
+          self.mouse_clicked()
         elif event.type == pygame.MOUSEBUTTONUP:
           self.mouse_down = False
 
-    
+  def mouse_clicked(self):
+    self.mouse_down = True
+    if self.hovered_button:
+      print('yeah')
+      if self.hovered_button != self.selected_button:
+        self.selected_button = self.hovered_button
+        self.selected_button.selected()
+        self.hovered_button = None
+      else:
+        print('yeah')
   
   def handle_mouse(self):
     mousePos = pygame.mouse.get_pos()
+    found_button = False
     for button in self.buttons:
-      # if button != self. button.rect.collidepoint(mousePos):
-      #   print('yeah')
-      pass
+      if button.rect.collidepoint(mousePos):
+        self.hovered_button = button
+        button.hovered()
+        found_button = True
+        break
+
+    if not found_button:
+      if self.hovered_button:
+        self.hovered_button.unhovered()
+      self.hovered_button = None
+
     if self.mouse_down:
       self.spawn_at_mouse()
   
